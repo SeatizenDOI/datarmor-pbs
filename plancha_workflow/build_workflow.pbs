@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#PBS -q ftp
+#PBS -l select=1:ncpus=2:mem=30g
+#PBS -l walltime=02:00:00
+#PBS -N build_workflow_sif
+#PBS -S /bin/bash
+
+module load singularity/3.6.4
+
+cd /home1/datahome/villien/PBS/plancha_workflow
+
+rm -rf workflow.sif
+
+singularity build -f workflow.sif docker://seatizendoi/plancha-workflow:latest
+
+
+

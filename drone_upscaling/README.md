@@ -1,7 +1,5 @@
-# Drone Upscaling tutorial
+# Drone Upscaling Tutorial
 
-## Build singularity container
+This folder uses [**drone-upscaling**](https://github.com/SeatizenDOI/drone-upscaling) to **build datasets for training a multilabel classifier with DINOv2**.
 
-`module load singularity/3.6.4`
-
-`singularity build -f drone_upscaling.sif docker://seatizendoi/drone-upscaling:latest`
+**Note:** This repository is now **superseded by [the-point-is-the-mask](https://github.com/SeatizenDOI/the-point-is-the-mask)**.
