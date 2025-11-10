@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=2:mem=30g
+#PBS -l walltime=03:00:00
+#PBS -N build_odm_sif
+#PBS -S /bin/bash
+
+module load singularity/3.6.4
+
+cd /home1/datahome/villien/PBS/odm
+
+rm -rf odm_latest.sif
+
+singularity build --disable-cache -f odm_latest.sif docker://opendronemap/odm:latest

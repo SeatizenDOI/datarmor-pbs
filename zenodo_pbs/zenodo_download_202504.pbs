@@ -1,0 +1,23 @@
+#/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=2:mem=30g
+#PBS -l walltime=48:00:00
+#PBS -N zen_down
+#PBS -S /bin/bash
+#PBS -J 1-15
+
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/zenodo-tools
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/zenodo_env
+
+python3 zenodo-download.py -ecsv -pcsv /home1/datahome/villien/csv_session/202504_session.csv -dr -dp -po /scale/project/rummo/plancha_session -ip $PBS_ARRAY_INDEX
+conda deactivate
+
+qstat -f $PBS_JOBID

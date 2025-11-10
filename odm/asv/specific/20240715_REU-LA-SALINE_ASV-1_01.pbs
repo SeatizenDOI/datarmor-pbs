@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#PBS -q omp
+#PBS -l select=1:ncpus=56:mem=114g
+#PBS -l walltime=45:00:00
+#PBS -N odm_asv_20240715_REU-LA-SALINE_ASV-1_01
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+module load singularity/3.6.4
+cd /home1/datahome/villien/PBS/odm
+
+
+PATH_FOLDER=/home/ifremer-rbe-doi-rummo/plancha-session
+SESSION_NAME=20240715_REU-LA-SALINE_ASV-1_01
+SESSION_PATH=${PATH_FOLDER}/${SESSION_NAME}
+
+NB_IMG=$(ls -v ${SESSION_PATH}/PROCESSED_DATA/FRAMES | wc -l)
+
+PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY
+rm -rf ${PHOTOG_FOLDER}
+mkdir -p ${PHOTOG_FOLDER}/images
+
+
+for i in $(seq 1 $NB_IMG); do 
+	ln -s ../../FRAMES/$(ls -v ${SESSION_PATH}/PROCESSED_DATA/FRAMES | sed -n "${i}p") ${PHOTOG_FOLDER}/images 
+done
+
+singularity run --bind ${SESSION_PATH}:/datasets/code \
+odm_latest.sif \
+--project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY \
+--auto-boundary --dem-resolution 0.1 --feature-quality ultra \
+--gps-accuracy 1 --optimize-disk-space --rolling-shutter --orthophoto-resolution 0.1 \
+--cog --max-concurrency 128
+
+qstat -f $PBS_JOBID

@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#PBS -l select=1:ncpus=2:ngpus=1:mem=40g
+#PBS -l walltime=2:00:00
+#PBS -N inference_sif
+#PBS -o ./output.txt
+#PBS -e ./error.txt
+#PBS -q gpuq
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+cd /home1/datahome/villien/PBS/sing_inference/
+
+module load singularity/3.6.4 
+
+echo "CUDA_DEVICE_ORDER=${CUDA_DEVICE_ORDER}"
+echo "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
+
+singularity run --nv --pwd /home/seatizen/app/ \
+--bind /home1/datawork/villien/plancha-session:/home/seatizen/plancha \
+--bind /home1/datawork/villien/models:/home/seatizen/app/models \
+--bind /home1/scratch/villien:/tmp \
+inference.sif -eses -pses /home/seatizen/plancha/20240405_REU-TESSIER_ASV-1_02 -jgpu -mlgpu -c
+
+qstat -f $PBS_JOBID

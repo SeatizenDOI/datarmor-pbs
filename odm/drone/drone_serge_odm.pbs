@@ -1,0 +1,47 @@
+#!/bin/bash
+
+#PBS -q omp
+#PBS -l select=1:ncpus=24:mem=350g
+#PBS -l walltime=96:00:00
+#PBS -N odm_drone
+#PBS -S /bin/bash
+#PBS -J 1-28
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+module load singularity/3.6.4
+cd /home1/datahome/villien/PBS/odm
+
+
+PATH_DRONE_FOLDER=/home/ifremer-rbe-doi-rummo/drone_serge
+NB_TOT_SES=$(ls ${PATH_DRONE_FOLDER} | wc -l)
+
+if [ "$PBS_ARRAY_INDEX" -gt "$NB_TOT_SES" ]; then
+	echo "${PBS_ARRAY_INDEX} not use because superior to number session (${NB_TOT_SES})."
+	exit 1
+fi
+
+SESSION_NAME=$(ls -v ${PATH_DRONE_FOLDER} | sed -n "${PBS_ARRAY_INDEX}p")
+SESSION_PATH=${PATH_DRONE_FOLDER}/${SESSION_NAME}
+NB_IMG=$(ls -v ${SESSION_PATH}/DCIM | wc -l)
+
+PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY
+rm -rf ${PHOTOG_FOLDER}
+mkdir -p ${PHOTOG_FOLDER}/images
+
+for i in $(seq 1 $NB_IMG); do 
+	ln -s ../../../DCIM/$(ls -v ${SESSION_PATH}/DCIM | sed -n "${i}p") ${PHOTOG_FOLDER}/images 
+done
+
+singularity run --bind ${SESSION_PATH}:/datasets/code \
+odm_latest.sif \
+--project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY \
+--auto-boundary --dem-resolution 1 --fast-orthophoto --feature-quality ultra \
+--gps-accuracy 1 --optimize-disk-space --orthophoto-resolution 1 \
+--pc-filter 2.5 --rolling-shutter --skip-3dmodel --tiles --force-gps \
+--use-exif
+
+qstat -f $PBS_JOBID

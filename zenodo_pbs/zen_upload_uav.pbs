@@ -1,0 +1,22 @@
+#/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=4:mem=30g
+#PBS -l walltime=1:00:00
+#PBS -N zen_upload
+#PBS -S /bin/bash
+
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/zenodo-tools
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/zenodo_env
+
+python3 zenodo-upload.py -ecsv -pcsv /home1/datahome/villien/csv_session/uav_manquant_serge.csv -ur -up mgpi -pmj metadata/metadata_uav_serge.json -iso19115
+conda deactivate
+
+qstat -f $PBS_JOBID

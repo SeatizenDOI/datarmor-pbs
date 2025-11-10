@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#PBS -l select=1:ncpus=24:mem=70g:ngpus=1
+#PBS -l walltime=12:00:00
+#PBS -N drone_workflow_inference_sif
+#PBS -q gpuq
+#PBS -S /bin/bash
+#PBS -J 1-50
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+cd /home1/datahome/villien/PBS/drone_workflow_inference/
+
+module load singularity/3.6.4 
+
+PATH_DRONE_FOLDER=/scale/project/rummo/drone/drone_serge
+SESSION_NAME=$(ls -v ${PATH_DRONE_FOLDER} | sed -n "${PBS_ARRAY_INDEX}p")
+SESSION_PATH=${PATH_DRONE_FOLDER}/${SESSION_NAME}
+
+echo "Working with ${SESSION_PATH}"
+
+singularity run --pwd /home/seatizen/app/ --bind ${PATH_DRONE_FOLDER}:/home/seatizen/sessions drone_workflow.sif -efol -pfol /home/seatizen/sessions -c -ip ${PBS_ARRAY_INDEX}
+
+singularity run --nv --pwd /home/seatizen/app/ --bind /home1/datawork/villien/models:/home/seatizen/app/models \
+--bind ${PATH_DRONE_FOLDER}:/home/seatizen/sessions \
+--bind /home1/scratch/villien/:/tmp/ \
+drone_inference.sif -efol -pfol /home/seatizen/sessions -c -ip ${PBS_ARRAY_INDEX}
+
+cd /home1/datahome/villien/project_hub/the-point-is-the-mask
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/segment_env
+
+python3 inference.py -eses -pses ${SESSION_PATH} -po /home1/scratch/villien/drone_uav_tmp -psm ./models/SegForCoral-b2-2025_06_30_19127-bs16_refine --is_seatizen_session
+
+qstat -f $PBS_JOBID

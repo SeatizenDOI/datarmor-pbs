@@ -1,0 +1,22 @@
+#/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=2:mem=30g
+#PBS -l walltime=12:00:00
+#PBS -N zen_up_julien
+#PBS -S /bin/bash
+#PBS -J 1-42
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/zenodo-tools
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/zenodo_env
+
+python3 zenodo-upload.py -ecsv -pcsv /home1/datahome/villien/csv_session/julien_to_resend.csv -ur -up dgmi -pmj metadata/metadata_julien.json -ip $PBS_ARRAY_INDEX
+conda deactivate
+
+qstat -f $PBS_JOBID

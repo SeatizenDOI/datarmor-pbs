@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#PBS -l select=1:ncpus=16:ngpus=1:mem=40g
+#PBS -l walltime=5:00:00
+#PBS -N maurice_inference
+#PBS -q gpuq
+#PBS -S /bin/bash
+#PBS -J 1-3
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+cd /home1/datahome/villien/PBS/plancha_inference/
+
+module load singularity/3.6.4 
+
+echo "CUDA_DEVICE_ORDER=${CUDA_DEVICE_ORDER}"
+echo "CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES}"
+
+singularity run --nv --pwd /home/seatizen/app/ \
+--bind /scale/project/rummo/julien_maurice:/home/seatizen/plancha \
+--bind /home1/datahome/villien/csv_session:/home/seatizen/app/csv \
+--bind /home1/datawork/villien/models:/home/seatizen/app/models \
+--bind /home1/scratch/villien:/tmp \
+inference.sif -ecsv -pcsv /home/seatizen/app/csv/julien_csv_inference_redo.csv -c -minp 1 -npr -ip $PBS_ARRAY_INDEX
+
+qstat -f $PBS_JOBID

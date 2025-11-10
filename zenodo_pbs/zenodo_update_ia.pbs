@@ -1,0 +1,21 @@
+#/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=1:mem=10g
+#PBS -l walltime=00:10:00
+#PBS -N zen_update
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/zenodo-tools
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/zenodo_env
+python3 zenodo-upload.py -eses -pses /scale/project/rummo/drone/drone_serge/20231208_REU-ST-LEU_UAV-01_03 -up i -pmj metadata/metadata_uav_serge.json
+
+conda deactivate
+
+qstat -f $PBS_JOBID

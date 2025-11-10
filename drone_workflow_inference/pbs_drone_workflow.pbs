@@ -1,0 +1,25 @@
+#!/bin/bash
+
+#PBS -l select=1:ncpus=2:mem=40g
+#PBS -l walltime=10:00:00
+#PBS -N drone_workflow_inference_sif
+#PBS -q gpuq
+#PBS -S /bin/bash
+#PBS -J 1-2
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+cd /home1/datahome/villien/PBS/drone_workflow_inference/
+
+module load singularity/3.6.4 
+
+PATH_DRONE_FOLDER=/home1/datawork/villien/plancha-temp
+
+singularity run --pwd /home/seatizen/app/ --bind /home1/scratch/villien/output_workflow_drone:/home/seatizen/app/output --bind /home1/datahome/villien/project_hub/drone-workflow/configs:/home/seatizen/app/configs --bind ${PATH_DRONE_FOLDER}:/home/seatizen/sessions drone_workflow.sif -efol -pfol /home/seatizen/sessions -c -ip ${PBS_ARRAY_INDEX}
+
+singularity run --nv --pwd /home/seatizen/app/ --bind /home1/datawork/villien/models:/home/seatizen/app/models --bind ${PATH_DRONE_FOLDER}:/home/seatizen/sessions drone_inference.sif -efol -pfol /home/seatizen/sessions -c -ip ${PBS_ARRAY_INDEX}
+
+
+qstat -f $PBS_JOBID

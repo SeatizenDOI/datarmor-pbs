@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#PBS -q omp
+#PBS -l select=1:ncpus=48:mem=300g
+#PBS -l walltime=96:00:00
+#PBS -N odm_asv_20231110_REU-ST-LEU_ASV
+#PBS -S /bin/bash
+#PBS -J 1-4
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+module load singularity/3.6.4
+cd /home1/datahome/villien/PBS/odm
+
+PATH_FOLDER=/home1/datawork/villien/plancha-session
+
+NB_TOT_SES=$(ls ${PATH_FOLDER} | wc -l)
+if [ "$PBS_ARRAY_INDEX" -gt "$NB_TOT_SES" ]; then
+	echo "${PBS_ARRAY_INDEX} not use because superior to number session (${NB_TOT_SES})."
+	exit 1
+fi
+
+SESSION_NAME=$(ls -v ${PATH_FOLDER} | sed -n "${PBS_ARRAY_INDEX}p")
+SESSION_PATH=${PATH_FOLDER}/${SESSION_NAME}
+
+
+echo "Working with ${SESSION_PATH}, ${PBS_ARRAY_INDEX}"
+
+PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY
+FRAMES_FOLDER=${SESSION_PATH}/PROCESSED_DATA/FRAMES
+NB_IMG=$(ls -v ${FRAMES_FOLDER} | wc -l)
+
+
+rm -rf ${PHOTOG_FOLDER}
+mkdir -p ${PHOTOG_FOLDER}/images
+
+for i in $(seq 1 $NB_IMG); do 
+	ln -s ../../FRAMES/$(ls -v ${FRAMES_FOLDER} | sed -n "${i}p") ${PHOTOG_FOLDER}/images 
+done
+
+
+singularity run --bind ${SESSION_PATH}:/datasets/code \
+odm_latest.sif \
+--project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY \
+--auto-boundary --dem-resolution 0.1 --feature-quality ultra \
+--gps-accuracy 1 --optimize-disk-space --rolling-shutter --orthophoto-resolution 0.1 \
+--cog --max-concurrency 128 
+
+qstat -f $PBS_JOBID

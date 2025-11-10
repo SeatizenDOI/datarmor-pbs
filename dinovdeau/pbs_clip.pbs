@@ -1,0 +1,21 @@
+#!/bin/bash
+#PBS -l select=1:ncpus=32:ngpus=1:mem=64g
+#PBS -l walltime=72:00:00
+#PBS -N clip
+#PBS -q gpuq
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+cd /home1/datahome/villien/project_hub/DinoVdeau
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/dinovdeau_env
+
+python3 main.py --new_model_name ClipEAU --model_name openai/clip-vit-base-patch32 -is 224 --no_custom_head
+
+conda deactivate
+
+qstat -f $PBS_JOBID

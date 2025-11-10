@@ -1,0 +1,21 @@
+#/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=8:mem=30g
+#PBS -l walltime=10:00:00
+#PBS -N zen_up_julien
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/zenodo-tools
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/zenodo_env
+
+python3 zenodo-upload.py -eses -pses /scale/project/rummo/julien_maurice/20171104_MUS-Le-Morne_KITE-01_01 -up dgmi -pmj metadata/metadata_julien.json
+conda deactivate
+
+qstat -f $PBS_JOBID

@@ -1,0 +1,22 @@
+#/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=4:mem=20g
+#PBS -l walltime=24:00:00
+#PBS -N zen_photog_2504
+#PBS -S /bin/bash
+#PBS -J 1-3
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/zenodo-tools
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/zenodo_env
+python3 zenodo-upload.py -ecsv -pcsv /home1/datahome/villien/csv_session/asv_photog_viable_after202504.csv -up p -pmj metadata/metadata_after_202504.json --confirm_upload_multiple_processed_version --pd_dont_keep_files_from_previous_version -ip $PBS_ARRAY_INDEX
+
+conda deactivate
+
+qstat -f $PBS_JOBID

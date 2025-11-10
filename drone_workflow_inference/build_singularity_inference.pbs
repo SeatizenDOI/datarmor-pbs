@@ -1,0 +1,14 @@
+#!/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=2:mem=30g
+#PBS -l walltime=02:00:00
+#PBS -N build_drone_inference_sif
+#PBS -S /bin/bash
+
+module load singularity/3.6.4
+
+cd /home1/datahome/villien/PBS/drone_workflow_inference
+
+rm -rf drone_inference.sif
+
+singularity build -f drone_inference.sif docker://seatizendoi/drone-inference:latest

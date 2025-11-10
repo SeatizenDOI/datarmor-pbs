@@ -1,0 +1,21 @@
+#/bin/bash
+#PBS -q gpuq
+#PBS -l select=1:ncpus=32:mem=100g:ngpus=1
+#PBS -l walltime=5:00:00
+#PBS -N segment_trainer_b2
+#PBS -S /bin/bash
+
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/the-point-is-the-mask
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/segment_env
+
+python3 train.py
+
+qstat -f $PBS_JOBID
