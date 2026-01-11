@@ -1,0 +1,26 @@
+#/bin/bash
+#PBS -q gpuq
+#PBS -l select=1:ncpus=20:mem=20g:ngpus=1
+#PBS -l walltime=1:00:00
+#PBS -N install_fastgeodis
+#PBS -S /bin/bash
+
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/segment_env
+
+module load gcc/9.1.0
+
+aptitude install gcc libstdc++
+
+pip uninstall fastgeodis -y
+pip install --no-cache-dir fastgeodis
+
+qstat -f $PBS_JOBID

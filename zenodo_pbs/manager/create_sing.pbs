@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#PBS -q ftp
+#PBS -l select=1:ncpus=2:mem=30g
+#PBS -l walltime=02:00:00
+#PBS -N build_manager_sif
+#PBS -S /bin/bash
+
+module load singularity/3.6.4
+
+cd /home1/datahome/villien/PBS/zenodo_pbs/manager
+
+rm -rf manager.sif
+
+singularity build -f manager.sif docker://seatizendoi/zenodo-manager:latest
+
+
+

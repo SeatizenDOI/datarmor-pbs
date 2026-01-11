@@ -1,10 +1,11 @@
 #!/bin/bash
 
 #PBS -q omp
-#PBS -l select=1:ncpus=50:mem=150g
-#PBS -l walltime=45:00:00
-#PBS -N odm_asv_20240715_REU-LA-SALINE_ASV-1_02
+#PBS -l select=1:ncpus=50:mem=450g
+#PBS -l walltime=250:00:00
+#PBS -N odm_20251104
 #PBS -S /bin/bash
+#PBS -J 1-4
 
 signal_handler() {
 	pkill --parent "${$}"
@@ -14,17 +15,35 @@ trap signal_handler EXIT
 module load singularity/3.6.4
 cd /home1/datahome/villien/PBS/odm
 
+PATH_ASV_FOLDER=/scale/project/rummo/link_plancha_20251104
+NB_TOT_SES=$(ls ${PATH_ASV_FOLDER} | wc -l)
 
-PATH_FOLDER=/scale/project/rummo/plancha-session
-SESSION_NAME=20240715_REU-LA-SALINE_ASV-1_02
-SESSION_PATH=${PATH_FOLDER}/${SESSION_NAME}
+if [ "$PBS_ARRAY_INDEX" -gt "$NB_TOT_SES" ]; then
+	echo "${PBS_ARRAY_INDEX} not use because superior to number session (${NB_TOT_SES})."
+	exit 1
+fi
 
+SESSION_NAME=$(ls -v ${PATH_ASV_FOLDER} | sed -n "${PBS_ARRAY_INDEX}p")
+SESSION_PATH=${PATH_ASV_FOLDER}/${SESSION_NAME}
 NB_IMG=$(ls -v ${SESSION_PATH}/PROCESSED_DATA/FRAMES | wc -l)
 
+echo "Working with ${SESSION_PATH}, ${PBS_ARRAY_INDEX}"
+
 PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY
+GCP_FILE=${PHOTOG_FOLDER}/gcp_list.txt
+GCP_FILE_TEMP=${SESSION_PATH}/gcp_list.txt
+
+# To avoid delete gcp_list, we copy it outside, remove photog folder and re-move it inside the PHOTOGFOLDER
+if [ -f ${GCP_FILE} ]; then
+    mv ${GCP_FILE} ${GCP_FILE_TEMP}
+fi
+
 rm -rf ${PHOTOG_FOLDER}
 mkdir -p ${PHOTOG_FOLDER}/images
 
+if [ -f ${GCP_FILE_TEMP} ]; then
+     mv ${GCP_FILE_TEMP} ${GCP_FILE}
+fi
 
 for i in $(seq 1 $NB_IMG); do 
 	ln -s ../../FRAMES/$(ls -v ${SESSION_PATH}/PROCESSED_DATA/FRAMES | sed -n "${i}p") ${PHOTOG_FOLDER}/images 

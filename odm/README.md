@@ -1,15 +1,20 @@
-# ODM
+# ODM PBS file
 
-Be mindful of the **ODM version** you use.
-All my orthophotos were generated with [**ODM 3.5.3**](https://github.com/OpenDroneMap/ODM/releases/tag/v3.5.3).
+Normalement, pour optimiser les dossiers et les processus, la photog va s'exécuter dans le SCRATCH puis on copy les résultats dans le bon dossier. 
 
-I observed that processing parameters differ between **drone** and **ASV** datasets, so I created separate folders to keep them organized.
+## Drone
 
-I didn’t perform 3D reconstruction — instead, I used the **`fast-ortho`** parameters, which produce orthophotos more efficiently and with better results for my use case.
+On essaie de faire des tiles en plus pour avoir de la mise à l'échelle.
 
-You’ll need to **build a Singularity container** from the provided Docker image.
+Deux scripts: 1 pour traiter une session et 1 autre pour traiter toutes les sessions. 
 
-I don’t use **GPU acceleration**, since the GPU is only used for SIFT feature extraction.
-The **GPU queue walltime** on Datarmor is limited to **72 hours**, while some reconstructions can take over **100 hours**.
-By using the **OMP queue**, I can allocate **more RAM and CPU cores**, which improves performance for large datasets.
 
+
+## SELF SPLIT
+
+Le script PBS va séparer l'utilisation des images en sous dossier pour optimiser les performances.
+
+
+# SPLIT odm
+
+OSM se charge de diviser le dossier parent en sous dossier.

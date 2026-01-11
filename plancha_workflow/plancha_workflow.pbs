@@ -4,6 +4,8 @@
 #PBS -l select=1:ncpus=16:mem=40g
 #PBS -l walltime=08:00:00
 #PBS -N workflow_sif
+#PBS -o ./output.txt
+#PBS -e ./error.txt
 #PBS -S /bin/bash
 
 signal_handler() {

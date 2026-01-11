@@ -1,0 +1,36 @@
+#!/bin/bash
+
+#PBS -q gpuq
+#PBS -l select=1:ngpus=1:ncpus=1:mem=100g
+#PBS -l walltime=24:00:00
+#PBS -N odm_sif_gpu
+#PBS -o ./output_gpu.txt
+#PBS -e ./error.txt
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+module load singularity/3.6.4
+cd /home1/datahome/villien/PBS/odm
+
+SESSION_NAME=20231110_REU-ST-LEU_ASV-1_03
+SESSION_PATH=/home1/datawork/villien/plancha-session/${SESSION_NAME}/PROCESSED_DATA
+
+rm -rf ${SESSION_PATH}/PHOTOGRAMMETRY
+mkdir -p ${SESSION_PATH}/PHOTOGRAMMETRY
+ln -s ../FRAMES ${SESSION_PATH}/PHOTOGRAMMETRY/images
+
+singularity run --nv --bind ${SESSION_PATH}:/datasets/code \
+--writable-tmpfs odm_gpu.sif \
+--project-path /datasets code/PHOTOGRAMMETRY \
+--auto-boundary --dem-resolution 0.1 --feature-quality ultra \
+--force-gps --gps-accuracy 1 --orthophoto-resolution 0.1 \
+--use-exif
+
+unlink ${SESSION_PATH}/PHOTOGRAMMETRY/images
+
+qstat -f $PBS_JOBID
+

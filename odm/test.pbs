@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#PBS -q omp
+#PBS -N odm_drone
+#PBS -S /bin/bash
+#PBS -J 1-2
+
+
+module load singularity/3.6.4
+cd /home1/datahome/villien/PBS/odm
+
+
+singularity exec odm_3_5_3.sif gdalinfo --version

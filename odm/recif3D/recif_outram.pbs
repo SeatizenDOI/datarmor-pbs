@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#PBS -q omp
+#PBS -l select=1:ncpus=50:mem=250g
+#PBS -l walltime=100:00:00
+#PBS -N odm_recif_20211126
+#PBS -S /bin/bash
+#PBS -J 1-5
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+module load singularity/3.6.4
+cd /home1/datahome/villien/PBS/odm
+
+PATH_DRONE_FOLDER=/scale/project/rummo/recif3D/link_ramout
+NB_TOT_SES=$(ls ${PATH_DRONE_FOLDER} | wc -l)
+
+if [ "$PBS_ARRAY_INDEX" -gt "$NB_TOT_SES" ]; then
+	echo "${PBS_ARRAY_INDEX} not use because superior to number session (${NB_TOT_SES})."
+	exit 1
+fi
+
+SESSION_NAME=$(ls -v ${PATH_DRONE_FOLDER} | sed -n "${PBS_ARRAY_INDEX}p")
+SESSION_PATH=${PATH_DRONE_FOLDER}/${SESSION_NAME}
+NB_IMG=$(ls -v ${SESSION_PATH}/DCIM_COLORED | wc -l)
+
+PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY_COLORED
+rm -rf ${PHOTOG_FOLDER}
+mkdir -p ${PHOTOG_FOLDER}/images
+
+for i in $(seq 1 $NB_IMG); do 
+	ln -s ../../../DCIM_COLORED/$(ls -v ${SESSION_PATH}/DCIM_COLORED | sed -n "${i}p") ${PHOTOG_FOLDER}/images 
+done
+
+singularity run --bind ${SESSION_PATH}:/datasets/code \
+odm_3_5_3.sif \
+--project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY_COLORED \
+--auto-boundary --cog --orthophoto-resolution 0.1 \
+--fast-orthophoto --optimize-disk-space --feature-quality ultra --gps-accuracy 0.1 --max-concurrency 50
+
+qstat -f $PBS_JOBID

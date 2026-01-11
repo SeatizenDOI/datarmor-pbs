@@ -1,0 +1,21 @@
+#/bin/bash
+#PBS -q omp
+#PBS -l select=1:ncpus=2:mem=5g
+#PBS -l walltime=00:05:00
+#PBS -N test_cpu
+#PBS -S /bin/bash
+
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/villien_env
+
+
+python -c 'from multiprocessing import cpu_count; print(cpu_count())'
+
+
+qstat -f $PBS_JOBID

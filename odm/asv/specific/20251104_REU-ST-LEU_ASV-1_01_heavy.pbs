@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #PBS -q omp
-#PBS -l select=1:ncpus=50:mem=150g
-#PBS -l walltime=45:00:00
-#PBS -N odm_asv_20240715_REU-LA-SALINE_ASV-1_02
+#PBS -l select=1:ncpus=50:mem=450g
+#PBS -l walltime=250:00:00
+#PBS -N ortho_20251104_REU-ST-LEU_ASV-1_01
 #PBS -S /bin/bash
 
 signal_handler() {
@@ -14,14 +14,16 @@ trap signal_handler EXIT
 module load singularity/3.6.4
 cd /home1/datahome/villien/PBS/odm
 
+PATH_ASV_FOLDER=/scale/project/rummo/plancha-session
 
-PATH_FOLDER=/scale/project/rummo/plancha-session
-SESSION_NAME=20240715_REU-LA-SALINE_ASV-1_02
-SESSION_PATH=${PATH_FOLDER}/${SESSION_NAME}
-
+SESSION_NAME=20251104_REU-ST-LEU_ASV-1_01
+SESSION_PATH=${PATH_ASV_FOLDER}/${SESSION_NAME}
 NB_IMG=$(ls -v ${SESSION_PATH}/PROCESSED_DATA/FRAMES | wc -l)
 
-PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY
+echo "Working with ${SESSION_PATH}, ${PBS_ARRAY_INDEX}"
+
+PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY_3D
+
 rm -rf ${PHOTOG_FOLDER}
 mkdir -p ${PHOTOG_FOLDER}/images
 
@@ -32,8 +34,11 @@ done
 
 singularity run --bind ${SESSION_PATH}:/datasets/code \
 odm_3_5_3.sif \
---project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY \
+--project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY_3D \
 --auto-boundary --cog --orthophoto-resolution 0.1 --rolling-shutter --rolling-shutter-readout 9 \
---fast-orthophoto --optimize-disk-space --feature-quality ultra --gps-accuracy 0.1 --max-concurrency 50
+--optimize-disk-space --feature-quality ultra --gps-accuracy 0.1 --max-concurrency 50 \
+--dtm --dsm --gltf --pc-quality high --dem-resolution 0.1
+
+
 
 qstat -f $PBS_JOBID

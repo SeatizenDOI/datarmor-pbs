@@ -1,0 +1,26 @@
+#/bin/bash
+#PBS -q ftp
+#PBS -l select=1:ncpus=6:mem=20g
+#PBS -l walltime=10:00:00
+#PBS -N manager_zenodo
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/PBS/zenodo_pbs/manager
+
+module load singularity/3.6.4 
+
+
+singularity run --pwd /home/seatizen/app/ \
+--bind /scale/project/rummo/julien_maurice:/home/seatizen/plancha \
+--bind /home1/datahome/villien/csv_session:/home/seatizen/app/csv \
+--bind /home1/datahome/villien/project_hub/zenodo-tools/seatizen_atlas_folder:/home/seatizen/app/seatizen_atlas_folder \
+--bind /home1/scratch/villien:/tmp \
+manager.sif python zenodo-manager.py -ecsv -pcsv /home/seatizen/app/csv/julien_to_send_with_singularity.csv -ulo -ne
+
+
+qstat -f $PBS_JOBID

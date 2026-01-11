@@ -5,7 +5,6 @@
 #PBS -l walltime=250:00:00
 #PBS -N odm_asv
 #PBS -S /bin/bash
-#PBS -J 1-4
 
 signal_handler() {
 	pkill --parent "${$}"
@@ -15,23 +14,17 @@ trap signal_handler EXIT
 module load singularity/3.6.4
 cd /home1/datahome/villien/PBS/odm
 
-PATH_ASV_FOLDER=/scale/project/rummo/link_plancha_torerun
-NB_TOT_SES=$(ls ${PATH_ASV_FOLDER} | wc -l)
+PATH_ASV_FOLDER=/scale/project/rummo/plancha-session
 
-if [ "$PBS_ARRAY_INDEX" -gt "$NB_TOT_SES" ]; then
-	echo "${PBS_ARRAY_INDEX} not use because superior to number session (${NB_TOT_SES})."
-	exit 1
-fi
-
-SESSION_NAME=$(ls -v ${PATH_ASV_FOLDER} | sed -n "${PBS_ARRAY_INDEX}p")
+SESSION_NAME=20231110_REU-ST-LEU_ASV-2_02
 SESSION_PATH=${PATH_ASV_FOLDER}/${SESSION_NAME}
 NB_IMG=$(ls -v ${SESSION_PATH}/PROCESSED_DATA/FRAMES | wc -l)
 
 echo "Working with ${SESSION_PATH}, ${PBS_ARRAY_INDEX}"
 
-PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY
+PHOTOG_FOLDER=${SESSION_PATH}/PROCESSED_DATA/PHOTOGRAMMETRY_UTM32740
 GCP_FILE=${PHOTOG_FOLDER}/gcp_list.txt
-GCP_FILE_TEMP=${SESSION_PATH}/gcp_list.txt
+GCP_FILE_TEMP=${SESSION_PATH}/gcp_list${uuidgen}.txt
 
 # To avoid delete gcp_list, we copy it outside, remove photog folder and re-move it inside the PHOTOGFOLDER
 if [ -f ${GCP_FILE} ]; then
@@ -51,8 +44,8 @@ done
 
 singularity run --bind ${SESSION_PATH}:/datasets/code \
 odm_3_5_3.sif \
---project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY \
---auto-boundary --cog --orthophoto-resolution 0.1 --rolling-shutter --rolling-shutter-readout 8 \
+--project-path /datasets code/PROCESSED_DATA/PHOTOGRAMMETRY_UTM32740 \
+--auto-boundary --cog --orthophoto-resolution 0.1 --rolling-shutter \
 --fast-orthophoto --optimize-disk-space --feature-quality ultra --gps-accuracy 0.1 --max-concurrency 50
 
 qstat -f $PBS_JOBID

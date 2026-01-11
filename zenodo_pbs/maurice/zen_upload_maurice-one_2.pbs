@@ -15,7 +15,7 @@ cd /home1/datahome/villien/project_hub/zenodo-tools
 . /appli/anaconda/latest/etc/profile.d/conda.sh
 conda activate /home1/datawork/villien/conda-env/zenodo_env
 
-python3 zenodo-upload.py -eses -pses /scale/project/rummo/julien_maurice/20180218_MUS-La-Preneuse_PADDLE-01_01 -ur -up dgmi -pmj metadata/metadata_julien.json
+python3 zenodo-upload.py -eses -pses /scale/project/rummo/julien_maurice/20230916_MDG-Nosy-Sakatia_SCUBA-01_01 -up dgmi -pmj metadata/metadata_julien.json
 conda deactivate
 
 qstat -f $PBS_JOBID

@@ -1,0 +1,21 @@
+#/bin/bash
+#PBS -q omp
+#PBS -l select=1:ncpus=12:mem=30g
+#PBS -l walltime=04:00:00
+#PBS -N underwater_correction
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+cd /home1/datahome/villien/project_hub/underwater-correction
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/villien_env
+
+python3 main.py -pi /scale/project/rummo/plancha-session/20231110_REU-ST-LEU_ASV-2_02/PROCESSED_DATA/FRAMES -po /home1/datawork/villien/plancha-session/20231110_REU-ST-LEU_ASV-2_02/PROCESSED_DATA/FRAMES
+conda deactivate
+
+qstat -f $PBS_JOBID

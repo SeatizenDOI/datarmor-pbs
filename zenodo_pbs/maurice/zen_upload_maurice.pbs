@@ -4,7 +4,7 @@
 #PBS -l walltime=12:00:00
 #PBS -N zen_up_julien
 #PBS -S /bin/bash
-#PBS -J 1-42
+#PBS -J 1-7
 
 signal_handler() {
 	pkill --parent "${$}"
@@ -16,7 +16,7 @@ cd /home1/datahome/villien/project_hub/zenodo-tools
 . /appli/anaconda/latest/etc/profile.d/conda.sh
 conda activate /home1/datawork/villien/conda-env/zenodo_env
 
-python3 zenodo-upload.py -ecsv -pcsv /home1/datahome/villien/csv_session/julien_to_resend.csv -ur -up dgmi -pmj metadata/metadata_julien.json -ip $PBS_ARRAY_INDEX
+python3 zenodo-upload.py -ecsv -pcsv /home1/datahome/villien/csv_session/julien_to_reresend_reprocessed.csv -up dgmi -pmj metadata/metadata_julien.json -ip $PBS_ARRAY_INDEX
 conda deactivate
 
 qstat -f $PBS_JOBID

@@ -1,0 +1,138 @@
+/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/kornia/feature/lightglue.py:44: FutureWarning: `torch.cuda.amp.custom_fwd(args...)` is deprecated. Please use `torch.amp.custom_fwd(args..., device_type='cuda')` instead.
+  @torch.cuda.amp.custom_fwd(cast_inputs=torch.float32)
+Using a slow image processor as `use_fast` is unset and a slow processor was saved with this model. `use_fast=True` will be the default behavior in v4.52, even if the model was saved with a slow processor. This will result in minor differences in outputs. You'll still be able to use a slow processor with `use_fast=False`.
+Some weights of CLIPForImageClassification were not initialized from the model checkpoint at openai/clip-vit-base-patch32 and are newly initialized: ['classifier.bias', 'classifier.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/huggingface_hub/utils/_experimental.py:60: UserWarning: 'HFSummaryWriter' is experimental and might be subject to breaking changes in the future without prior notice. You can disable this warning by setting `HF_HUB_DISABLE_EXPERIMENTAL_WARNING=1` as environment variable.
+  warnings.warn(
+Repo card metadata block was not found. Setting CardData to empty.
+Detected kernel version 3.10.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+
+###################################################
+Using GPU for training.
+###################################################
+
+
+info : Model name is  DroneClip-vit-base-patch32-2025_11_09_26498-bs32_freeze_probs
+
+info : Training model...
+
+  0%|          | 0/25050 [00:00<?, ?it/s]Traceback (most recent call last):
+  File "/home1/datahome/villien/project_hub/DinoVdeau/main.py", line 130, in <module>
+    main(args)
+  File "/home1/datahome/villien/project_hub/DinoVdeau/main.py", line 93, in main
+    train_results = trainer.train()
+                    ^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/trainer.py", line 2306, in train
+    return inner_training_loop(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/trainer.py", line 2659, in _inner_training_loop
+    tr_loss_step = self.training_step(model, inputs, num_items_in_batch)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/trainer.py", line 3873, in training_step
+    loss = self.compute_loss(model, inputs, num_items_in_batch=num_items_in_batch)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/trainer.py", line 3961, in compute_loss
+    outputs = model(**inputs)
+              ^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/accelerate/utils/operations.py", line 818, in forward
+    return model_forward(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/accelerate/utils/operations.py", line 806, in __call__
+    return convert_to_fp32(self.model_forward(*args, **kwargs))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/torch/amp/autocast_mode.py", line 44, in decorate_autocast
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/utils/generic.py", line 958, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/models/clip/modeling_clip.py", line 1226, in forward
+    outputs: BaseModelOutputWithPooling = self.vision_model(
+                                          ^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/models/clip/modeling_clip.py", line 751, in forward
+    hidden_states = self.embeddings(pixel_values, interpolate_pos_encoding=interpolate_pos_encoding)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home1/datawork/villien/conda-env/dinovdeau_env/lib/python3.12/site-packages/transformers/models/clip/modeling_clip.py", line 199, in forward
+    raise ValueError(
+ValueError: Input image size (164*164) doesn't match model (224*224).
+  0%|          | 0/25050 [00:00<?, ?it/s]
+Job Id: 4249041.datarmor0
+    Job_Name = drone_clip
+    Job_Owner = villien@datarmor3.ib0.ice.ifremer.fr
+    resources_used.cpupercent = 0
+    resources_used.cput = 00:00:00
+    resources_used.mem = 0b
+    resources_used.ncpus = 32
+    resources_used.vmem = 6509876kb
+    resources_used.walltime = 00:00:11
+    job_state = R
+    queue = gpuq
+    server = datarmor0
+    Checkpoint = u
+    ctime = Thu Nov  6 11:43:38 2025
+    Error_Path = datarmor3.ib0.ice.ifremer.fr:/home1/datahome/villien/PBS/dinov
+	deau/drone/drone_clip.e4249041
+    exec_host = datavisu2/0*0
+    exec_vnode = (datavisu2[0]:mem=67108864kb:ngpus=1:ncpus=16+datavisu2[1]:ncp
+	us=16)
+    Hold_Types = n
+    Join_Path = oe
+    Keep_Files = n
+    Mail_Points = ae
+    mtime = Sun Nov  9 07:21:34 2025
+    Output_Path = datarmor3.ib0.ice.ifremer.fr:/home1/datahome/villien/PBS/dino
+	vdeau/drone/drone_clip.o4249041
+    Priority = 0
+    qtime = Thu Nov  6 11:43:38 2025
+    Rerunable = True
+    Resource_List.mem = 64gb
+    Resource_List.ncpus = 32
+    Resource_List.ngpus = 1
+    Resource_List.nodect = 1
+    Resource_List.place = free
+    Resource_List.select = 1:ncpus=32:ngpus=1:mem=64g
+    Resource_List.walltime = 72:00:00
+    stime = Sun Nov  9 07:21:22 2025
+    session_id = 52921
+    Shell_Path_List = /bin/bash
+    jobdir = /home1/datahome/villien
+    substate = 42
+    Variable_List = PBS_O_SYSTEM=Linux,PBS_O_SHELL=/bin/csh,
+	PBS_O_HOME=/home1/datahome/villien,PBS_O_LOGNAME=villien,
+	PBS_O_WORKDIR=/home1/datahome/villien/PBS/dinovdeau/drone,
+	PBS_O_LANG=en_US.UTF-8,
+	PBS_O_PATH=/opt/sgi/sbin:/opt/sgi/bin:/usr/bin:/bin:/usr/sbin:/sbin:/u
+	sr/local/bin:/usr/games:/opt/c3/bin:/appli/pbs/19.2.8.20200925/bin:/app
+	li/pbs/19.2.8.20200925/sbin:/usr/lpp/mmfs/bin:/appli/pbs/19.2.8.2020092
+	5/bin:/appli/pbs/19.2.8.20200925/sbin:/usr/lpp/mmfs/bin:/sbin:/bin:/app
+	li/services/bin:.:/home1/datahome/villien/bin,
+	PBS_O_MAIL=/var/mail/villien,PBS_O_QUEUE=gpuq,
+	PBS_O_HOST=datarmor3.ib0.ice.ifremer.fr
+    comment = Job run at Sun Nov 09 at 06:21 on (datavisu2[0]:mem=67108864kb:ng
+	pus=1:ncpus=16+datavisu2[1]:ncpus=16)
+    etime = Thu Nov  6 11:43:38 2025
+    run_count = 16
+    eligible_time = 05:30:43
+    Submit_arguments = drone_clip.pbs
+    pset = cluster=gpu_c
+    project = _pbs_project_default
+

@@ -1,0 +1,36 @@
+#/bin/bash
+#PBS -q omp
+#PBS -l select=1:ncpus=25:mem=120g
+#PBS -l walltime=4:00:00
+#PBS -N underwater_correction
+#PBS -S /bin/bash
+
+signal_handler() {
+	pkill --parent "${$}"
+}
+trap signal_handler EXIT
+
+module load exiftool/exiftool-12.41
+
+cd /home1/datahome/villien/project_hub/underwater-correction
+
+. /appli/anaconda/latest/etc/profile.d/conda.sh
+conda activate /home1/datawork/villien/conda-env/villien_env
+
+PATH_DRONE_FOLDER=/scale/project/rummo/recif3D/link_to_recif3D
+
+SESSION_NAME=20211202_REU-HERMITAGE_AUV-1_01
+SESSION_PATH=${PATH_DRONE_FOLDER}/${SESSION_NAME}
+
+DCIM=${SESSION_PATH}/DCIM
+DCIM_COLORED=${SESSION_PATH}/DCIM_COLORED
+
+
+python3 main.py -pi ${DCIM} -po ${DCIM_COLORED}
+
+exiftool -TagsFromFile ${DCIM}/%f.%e -all:all ${DCIM_COLORED}/ -overwrite_original
+
+
+conda deactivate
+
+qstat -f $PBS_JOBID
